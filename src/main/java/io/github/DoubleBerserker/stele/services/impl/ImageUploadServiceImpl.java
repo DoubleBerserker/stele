@@ -28,10 +28,24 @@ public class ImageUploadServiceImpl implements ImageUploadService {
         System.out.println("Reached service");
         try {
             System.out.println("Storing Image:");
-            String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-            Path path = Paths.get(UPLOAD_DIR + fileName);
+            String originalFilename = imageFile.getOriginalFilename();
+            if (originalFilename == null || originalFilename.isBlank()) {
+                originalFilename = "image";
+            }
+            // Strip any path information from the original filename
+            originalFilename = Paths.get(originalFilename).getFileName().toString();
 
-            Files.createDirectories(path.getParent());
+            String fileName = UUID.randomUUID() + "_" + originalFilename;
+
+            Path uploadRoot = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
+            Path path = uploadRoot.resolve(fileName).normalize();
+
+            // Ensure the resolved path is still within the upload root to prevent path traversal
+            if (!path.startsWith(uploadRoot)) {
+                throw new SecurityException("Invalid file path");
+            }
+
+            Files.createDirectories(uploadRoot);
             Files.write(path, imageFile.getBytes());
 
             Map<String, String> response = new HashMap<>();
