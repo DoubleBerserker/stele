@@ -64,7 +64,12 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             
             // Validate content type
             String contentType = imageFile.getContentType();
-            if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+            if (contentType == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP, SVG)");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+            if (!ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP, SVG)");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);

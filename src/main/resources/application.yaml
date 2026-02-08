@@ -4,3 +4,4 @@ blog:
 image:
   uploadDir: src/main/resources/static/images/
   maxFileSize: 5242880  # 5MB in bytes
+  maxFileSizeMB: 5  # 5MB for Spring multipart configuration
