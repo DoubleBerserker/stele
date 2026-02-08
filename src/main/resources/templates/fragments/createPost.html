@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<article th:fragment="createPost">
+
+  <h2> Create a New Post </h2>
+
+  <div class="container">
+    <form th:action="@{/posts/save}" th:object="${post}" method="POST">
+      <div>
+        <label> Title </label>
+        <input type="text" th:field="*{title}" placeholder="Enter title..." required>
+      </div>
+
+      <div>
+        <label> Content </label>
+        <textarea id="markdown-editor" th:field="*{content}"></textarea>
+      </div>
+
+      <button type="submit"> Publish Post </button>
+    </form>
+  </div>
+
+  <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+  <script>
+    const easyMDE = new EasyMDE({
+      element: document.getElementById('markdown-editor'),
+      uploadImage: true,
+      toolbar: [
+              "bold", "italic", "heading", "|",
+              "quote", "unordered-list", "ordered-list", "|",
+              "link",
+              {
+                name: "image",
+                action: (editor) => {
+                  // Trigger a hidden file input
+                  document.getElementById('hidden-image-input').click();
+                },
+                className: "fa fa-picture-o",
+                title: "Upload Image",
+              },
+              "|", "preview", "guide"
+      ]
+    });
+
+    // Handle the image file selection
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.id = 'hidden-image-input';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+
+      // 1. Prepare FormData
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        // 2. Send to Spring Boot Backend
+        const response = await fetch('/api/image/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // 3. Insert Markdown into Editor: ![alt](url)
+          const markdownImage = `\n![Image Description](${data.url})\n`;
+          console.log(markdownImage); // TODO Remove this log
+          easyMDE.codemirror.replaceSelection(markdownImage);
+        } else {
+          alert('Image upload failed');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error uploading image');
+      }
+
+      // Reset input so same file can be selected again if needed
+      fileInput.value = '';
+    });
+
+  </script>
+
+</article>
+
+</html>

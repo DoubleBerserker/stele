@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 
-<head th:fragment="head(title)">    <!-- Getting title from model in controller, DO NOT FORGET TO PASS or do idc -->
+<th:block th:fragment="head(title)">
   <meta charset="UTF-8">
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <title th:text="${title}">Personal Blog</title>
-</head>
+
+  <!--/* only adds this if we are on the create post page */-->
+  <th:block th:if="${page == 'createPost'}">
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <style>
+      .CodeMirror { min-height: 300px; }
+    </style>
+  </th:block>
+</th:block>
 
 </html>

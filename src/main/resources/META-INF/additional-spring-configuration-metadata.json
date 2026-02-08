@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "blog.name",
+      "type": "java.lang.String",
+      "description": "Name of the Blog."
+    },
+    {
+      "name": "image.uploadDir",
+      "type": "java.lang.String",
+      "description": "Location for uploaded images."
+    }
+  ] }

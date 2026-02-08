@@ -29,8 +29,6 @@ public class PostServiceImpl implements PostService {
     private final MarkdownService markdownService;
     private final PostMapper postMapper;
 
-    private final Integer MAX_POST_SUMMARY_LENGTH = 200;
-
     @Override
     @Transactional(readOnly = true)
     public PostResponseDto getPostById(String id) {
@@ -52,12 +50,7 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(0, numberOfPosts);
         List<PostSummaryProjection> latestPosts = postRepository.findAllByOrderByCreatedAtDesc(pageable);
 
-        return latestPosts.stream().map(p -> PostSummaryDto.builder()
-                .id(p.getId())
-                .title(p.getTitle())
-                .content(p.getContent().length() >= MAX_POST_SUMMARY_LENGTH ? markdownService.convertMarkdownToPlaintext(p.getContent()).substring(0, MAX_POST_SUMMARY_LENGTH) + "..." : markdownService.convertMarkdownToPlaintext(p.getContent()))
-                .build()
-        ).toList();
+        return latestPosts.stream().map(postMapper::postSummaryProjectionToPostSummaryDto).toList();
     }
 
     @Override
@@ -66,22 +59,6 @@ public class PostServiceImpl implements PostService {
 
         // Gets a Page<Post> object from repository which is mapped to Page<PostResponseDto>. Convert to exploded form if it gets confusing
         return postRepository.findAll(pageable).map(postMapper::postToPostResponseDto);
-    }
-
-    private PostResponseDto mapPostEntityToResponse(Post post) {
-        return new PostResponseDto(
-                post.getId(),
-                post.getTitle(),
-                markdownService.convertMarkdownToHtml(post.getContent()),
-                post.getStatus(),
-                post.getCreatedAt(),
-                post.getUpdatedAt(),
-                CategoryDto.builder()
-                        .id(post.getCategory().getId())
-                        .name(post.getCategory().getName())
-                        .postCount(0) // Avoid accessing lazy-loaded posts collection here to prevent N+1 queries
-                        .build()
-        );
     }
 
 }

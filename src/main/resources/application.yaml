@@ -1,0 +1,5 @@
+blog:
+  name: stele
+
+image:
+  uploadDir: src/main/resources/static/images/
