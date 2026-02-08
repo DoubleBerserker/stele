@@ -46,7 +46,7 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             }
 
             Files.createDirectories(uploadRoot);
-            Files.write(path, imageFile.getBytes());
+            imageFile.transferTo(path.toFile());
 
             Map<String, String> response = new HashMap<>();
             response.put("url", "/images/" + fileName);
