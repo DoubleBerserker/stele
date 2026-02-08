@@ -72,7 +72,6 @@
 
           // 3. Insert Markdown into Editor: ![alt](url)
           const markdownImage = `\n![Image Description](${data.url})\n`;
-          console.log(markdownImage); // TODO Remove this log
           easyMDE.codemirror.replaceSelection(markdownImage);
         } else {
           alert('Image upload failed');
