@@ -20,11 +20,10 @@ public class HomeController {
     @GetMapping({"/", "/home"})
     public String getHomepage(Model model) {
 
+        final int NUMBER_OF_LATEST_POSTS_TO_SHOW = 2;
+        final String pageHeadTitle = "Home";
 
-        int numberOfLatestPostsToShow = 2;
-        String pageHeadTitle = "Home";
-
-        List<PostSummaryDto> latestPostSummaries = postService.getLatestPostsSummarized(numberOfLatestPostsToShow);
+        List<PostSummaryDto> latestPostSummaries = postService.getLatestPostsSummarized(NUMBER_OF_LATEST_POSTS_TO_SHOW);
         model.addAttribute("latestPosts", latestPostSummaries);
 
         ModelAttributeHelper.addPageAttributes(model, pageHeadTitle, PageNameEnum.HOMEPAGE.value);

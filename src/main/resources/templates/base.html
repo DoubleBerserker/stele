@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head :: head(${title})}"> </head>
+<head>
+  <th:block th:replace="~{fragments/head :: head(${title})}"></th:block>
+</head>
+
 
 <body>
   <div th:replace="~{fragments/header :: blogHeader}"> </div>
@@ -9,6 +12,6 @@
   <div th:replace="~{fragments/__${page}__ :: __${page}__}"></div>  <!--/* Ignore the warnings the IDE gives, it is stupid */-->
 
   <div th:replace="~{fragments/footer :: footer}"></div>
-
 </body>
+
 </html>

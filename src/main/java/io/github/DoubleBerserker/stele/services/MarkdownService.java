@@ -10,4 +10,7 @@ public interface MarkdownService {
     @Named(value = "toPlaintext")
     String convertMarkdownToPlaintext(String markdownText);
 
+    @Named(value = "toSummarizedPlaintext")
+    String convertMarkdownToSummarizedPlaintext(String markdownText);
+
 }

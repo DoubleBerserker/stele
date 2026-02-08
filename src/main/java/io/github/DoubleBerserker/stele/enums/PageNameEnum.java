@@ -4,10 +4,12 @@ public enum PageNameEnum {
 
     BASE("base"),
 
+    // Navigation bar pages
     HOMEPAGE("homepage"),
     POSTS_MAIN_PAGE("allPosts"),
     POST("post"),
-    ABOUT("about");
+    ABOUT("about"),
+    CREATE_POST("createPost");
 
     public final String value;
 

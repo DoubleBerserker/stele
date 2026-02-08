@@ -13,11 +13,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class MarkdownServiceImpl implements MarkdownService {
 
-    private final Parser parser = Parser.builder().build();
+    private static final Integer MAX_POST_SUMMARY_LENGTH = 200;
+
+    private final Parser markdownParser = Parser.builder().build();
     private final TextContentRenderer textContentRenderer = TextContentRenderer.builder().build();
     private final HtmlRenderer renderer = HtmlRenderer.builder().build();
 
-    private static final PolicyFactory HTML_SANITIZER = Sanitizers.FORMATTING
+    private final PolicyFactory HTML_SANITIZER = Sanitizers.FORMATTING
             .and(Sanitizers.BLOCKS)
             .and(Sanitizers.IMAGES)
             .and(Sanitizers.LINKS)
@@ -30,7 +32,7 @@ public class MarkdownServiceImpl implements MarkdownService {
         if (markdownText == null)
             return "";
 
-        Node node = parser.parse(markdownText);
+        Node node = markdownParser.parse(markdownText);
         return HTML_SANITIZER.sanitize(renderer.render(node));
     }
 
@@ -42,7 +44,26 @@ public class MarkdownServiceImpl implements MarkdownService {
             return "";
         }
 
-        Node node = parser.parse(markdownText);
+        Node node = markdownParser.parse(markdownText);
         return textContentRenderer.render(node);
     }
+
+    @Override
+    @Named(value = "toSummarizedPlaintext")
+    public String convertMarkdownToSummarizedPlaintext(String markdownText) {
+
+        if (markdownText == null) {
+            return "";
+        }
+
+        Node node = markdownParser.parse(markdownText);
+        String plaintext = textContentRenderer.render(node);
+
+        if (plaintext.length() <= MAX_POST_SUMMARY_LENGTH) {
+            return plaintext;
+        }
+
+        return plaintext.substring(0, MAX_POST_SUMMARY_LENGTH) + "...";
+    }
+
 }
