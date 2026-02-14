@@ -27,13 +27,12 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             "image/jpg",
             "image/png",
             "image/gif",
-            "image/webp",
-            "image/svg+xml"
+            "image/webp"
     );
     
     // Allowed image file extensions
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
-            "jpg", "jpeg", "png", "gif", "webp", "svg"
+            "jpg", "jpeg", "png", "gif", "webp"
     );
 
     ImageUploadServiceImpl (
@@ -66,12 +65,12 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             String contentType = imageFile.getContentType();
             if (contentType == null) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP, SVG)");
+                error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP)");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
             if (!ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP, SVG)");
+                error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP)");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
             
@@ -87,7 +86,7 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             String fileExtension = getFileExtension(originalFilename);
             if (fileExtension.isEmpty() || !ALLOWED_EXTENSIONS.contains(fileExtension.toLowerCase())) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Invalid file extension. Only image files are allowed (jpg, jpeg, png, gif, webp, svg)");
+                error.put("error", "Invalid file extension. Only image files are allowed (jpg, jpeg, png, gif, webp)");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 

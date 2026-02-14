@@ -218,7 +218,7 @@ class ImageUploadServiceImplTest {
     }
 
     @Test
-    void uploadImage_withSvgFile_shouldSucceed() {
+    void uploadImage_withSvgFile_shouldReturnBadRequest() {
         // Arrange
         byte[] content = "<svg></svg>".getBytes();
         MockMultipartFile file = new MockMultipartFile(
@@ -232,7 +232,9 @@ class ImageUploadServiceImplTest {
         ResponseEntity<Map<String, String>> response = imageUploadService.uploadImage(file);
 
         // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
+        assertTrue(response.getBody().containsKey("error"));
+        assertTrue(response.getBody().get("error").contains("Invalid file type"));
     }
 }
