@@ -6,12 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/image/")
@@ -19,7 +15,7 @@ public class ImageController {
 
     private final ImageUploadService imageUploadService;
 
-    @Value("${app.imageUpload.apiKey:}")
+    @Value("${image.uploadApiKey}")
     private String uploadApiKey;
 
     ImageController(ImageUploadService imageUploadService) {
@@ -33,7 +29,7 @@ public class ImageController {
 
         // Simple authorization: require a valid API key header to allow uploads.
         if (uploadApiKey != null && !uploadApiKey.isEmpty()) {
-            if (apiKey == null || !uploadApiKey.equals(apiKey)) {
+            if (!uploadApiKey.equals(apiKey)) {
                 Map<String, String> errorBody = new HashMap<>();
                 errorBody.put("error", "Forbidden");
                 errorBody.put("message", "Invalid or missing API key for image upload.");
