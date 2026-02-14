@@ -2,7 +2,6 @@ package io.github.DoubleBerserker.stele.controller;
 
 import io.github.DoubleBerserker.stele.dto.NewPost;
 import io.github.DoubleBerserker.stele.dto.PostResponseDto;
-import io.github.DoubleBerserker.stele.entities.Post;
 import io.github.DoubleBerserker.stele.enums.PageNameEnum;
 import io.github.DoubleBerserker.stele.services.PostService;
 import io.github.DoubleBerserker.stele.utils.ModelAttributeHelper;
@@ -14,8 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor

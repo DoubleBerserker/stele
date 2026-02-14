@@ -3,3 +3,6 @@ blog:
 
 image:
   uploadDir: src/main/resources/static/images/
+  uploadApiKey: 61fb8a8d-1585-4ccc-98ca-1c07a4dd07c5
+  maxFileSize: 5242880  # 5MB in bytes
+  maxFileSizeMB: 5  # 5MB for Spring multipart configuration
