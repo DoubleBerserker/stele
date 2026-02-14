@@ -18,8 +18,8 @@ import java.util.UUID;
 @Service
 public class ImageUploadServiceImpl implements ImageUploadService {
 
-    private final String UPLOAD_DIR;
-    private final long MAX_FILE_SIZE;
+    private final String uploadDir;
+    private final long maxFileSize;
     
     // Allowed image MIME types
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
@@ -36,44 +36,23 @@ public class ImageUploadServiceImpl implements ImageUploadService {
     );
 
     ImageUploadServiceImpl (
-            @Value("${image.uploadDir}") String UPLOAD_DIR,
-            @Value("${image.maxFileSize:5242880}") long MAX_FILE_SIZE) { // Default: 5MB
-        this.UPLOAD_DIR = UPLOAD_DIR;
-        this.MAX_FILE_SIZE = MAX_FILE_SIZE;
+            @Value("${image.uploadDir}") String uploadDir,
+            @Value("${image.maxFileSize:5242880}") long maxFileSize) { // Default: 5MB
+        this.uploadDir = uploadDir;
+        this.maxFileSize = maxFileSize;
     }
 
     @Override
     public ResponseEntity<Map<String, String>> uploadImage(MultipartFile imageFile) {
-
         System.out.println("Reached service");
+
+        ResponseEntity<Map<String, String>> response = null;
+        response = validateImage(imageFile);
+        if(response != null) {
+            return response;
+        }
+
         try {
-            // Validate file is not empty
-            if (imageFile == null || imageFile.isEmpty()) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "File is empty or not provided");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
-            
-            // Validate file size
-            if (imageFile.getSize() > MAX_FILE_SIZE) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "File size exceeds maximum allowed size of " + (MAX_FILE_SIZE / 1024 / 1024) + "MB");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
-            
-            // Validate content type
-            String contentType = imageFile.getContentType();
-            if (contentType == null) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP)");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
-            if (!ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP)");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
-            
             System.out.println("Storing Image:");
             String originalFilename = imageFile.getOriginalFilename();
             if (originalFilename == null || originalFilename.isBlank()) {
@@ -81,7 +60,7 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             }
             // Strip any path information from the original filename
             originalFilename = Paths.get(originalFilename).getFileName().toString();
-            
+
             // Validate file extension
             String fileExtension = getFileExtension(originalFilename);
             if (fileExtension.isEmpty() || !ALLOWED_EXTENSIONS.contains(fileExtension.toLowerCase())) {
@@ -92,7 +71,7 @@ public class ImageUploadServiceImpl implements ImageUploadService {
 
             String fileName = UUID.randomUUID() + "_" + originalFilename;
 
-            Path uploadRoot = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
+            Path uploadRoot = Paths.get(uploadDir).toAbsolutePath().normalize();
             Path path = uploadRoot.resolve(fileName).normalize();
 
             // Ensure the resolved path is still within the upload root to prevent path traversal
@@ -103,10 +82,10 @@ public class ImageUploadServiceImpl implements ImageUploadService {
             Files.createDirectories(uploadRoot);
             imageFile.transferTo(path.toFile());
 
-            Map<String, String> response = new HashMap<>();
-            response.put("url", "/images/" + fileName);
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("url", "/images/" + fileName);
             System.out.println("Stored image at: " + path);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(responseBody);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -114,7 +93,37 @@ public class ImageUploadServiceImpl implements ImageUploadService {
         }
 
     }
-    
+
+    ResponseEntity<Map<String, String>> validateImage(MultipartFile imageFile) {
+        // Validate file is not empty
+        if (imageFile == null || imageFile.isEmpty()) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "File is empty or not provided");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+
+        // Validate file size
+        if (imageFile.getSize() > maxFileSize) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "File size exceeds maximum allowed size of " + (maxFileSize / 1024 / 1024) + "MB");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+
+        // Validate content type
+        String contentType = imageFile.getContentType();
+        if (contentType == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP)");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+        if (!ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid file type. Only image files are allowed (JPEG, PNG, GIF, WebP)");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+        return null;
+    }
+
     /**
      * Extracts the file extension from a filename
      * @param filename the filename to extract extension from
